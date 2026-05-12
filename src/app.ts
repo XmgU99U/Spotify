@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import fileUpload from "express-fileupload";
 import { connect } from "mongoose";
 import dotenv from "dotenv";
+import authRoutes from './auth/authRoutes' ; 
 dotenv.config();
 connect(process.env.MONGO_DB_URL as string ).then((_data) =>
   console.log("Connected to DB"),
@@ -15,6 +16,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(fileUpload());
+app.use('/auth' , authRoutes)
 
 app.listen(PORT, () => {
   console.log(`SERVER IS RUNNING ON PORT PORT`);
