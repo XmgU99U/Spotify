@@ -33,7 +33,7 @@ const register = async (req: Request, res: Response) => {
     .findOne({ userEmail })
     .exec();
   if (foundedUserWithSameEmail) {
-    return res.status(400).json({ error: "User already exist" });
+    return res.status(403).json({ error: "User already exist" });
   }
 
   //! find user who has same username
@@ -41,7 +41,7 @@ const register = async (req: Request, res: Response) => {
     .findOne({ userName })
     .exec();
   if (foundedUserWithSameUserName) {
-    return res.status(400).json({ error: "This username already exist" });
+    return res.status(403).json({ error: "This username already exist" });
   }
 
   //! hash the password before storing
