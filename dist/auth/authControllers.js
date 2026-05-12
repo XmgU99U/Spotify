@@ -12,11 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkCode = exports.login = exports.register = void 0;
+exports.refreshAccessToken = exports.checkCode = exports.login = exports.register = void 0;
 const userModel_1 = __importDefault(require("./userModel"));
 const bcrypt_1 = require("bcrypt");
 const token_generators_1 = require("./token_generators");
 const validators_1 = require("./validators");
+const jsonwebtoken_1 = require("jsonwebtoken");
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userName, userEmail, userPassword } = req.body;
     //! get random number
@@ -131,3 +132,29 @@ const checkCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.status(200).json({ accessTokens, refreshTokens });
 });
 exports.checkCode = checkCode;
+const refreshAccessToken = (req, res) => {
+    const refreshToken = req.body.refreshToken;
+    if (!refreshToken || typeof refreshToken !== "string") {
+        return res.sendStatus(400);
+    }
+    try {
+        const payload = (0, jsonwebtoken_1.verify)(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const accessToken = (0, token_generators_1.generateAccessToken)({
+            userId: payload.userId,
+            isVerified: payload.isVerified,
+        });
+        res.status(200).json(accessToken);
+    }
+    catch (e) {
+        if (e instanceof jsonwebtoken_1.TokenExpiredError) {
+            return res.status(403).json({ error: e.message });
+        }
+        if (e instanceof jsonwebtoken_1.JsonWebTokenError) {
+            return res.status(401).json({ error: e.message });
+        }
+        if (e instanceof jsonwebtoken_1.NotBeforeError) {
+            return res.status(401).json({ error: e.message });
+        }
+    }
+};
+exports.refreshAccessToken = refreshAccessToken;
