@@ -4,7 +4,7 @@ import fileUpload from "express-fileupload";
 import { connect } from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
-connect("mongodb://localhost:27017/Spotify").then((_data) =>
+connect(process.env.MONGO_DB_URL as string ).then((_data) =>
   console.log("Connected to DB"),
 );
 
