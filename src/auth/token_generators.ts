@@ -1,12 +1,18 @@
 import { sign } from "jsonwebtoken";
 
-const generateAccessToken = (data: Object): string => {
+
+type payloadData = {
+  userId: string , 
+  isVerified: boolean ,
+} ; 
+
+const generateAccessToken = (data: payloadData): string => {
   return sign(data, process.env.ACCESS_TOKEN_SECRET as string, {
     expiresIn: "20m",
   });
 };
 
-const generateRefreshToken = (data: Object): string => {
+const generateRefreshToken = (data: payloadData): string => {
   return sign(data, process.env.REFRESH_TOKEN_SECRET as string, {
     expiresIn: "30d",
   });
