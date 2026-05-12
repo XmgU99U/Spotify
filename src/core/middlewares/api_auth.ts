@@ -8,6 +8,7 @@ import {
 } from "jsonwebtoken";
 
 class ApiAuth {
+  static apiAuth: ApiAuth = new ApiAuth()
   bearerToken(req: Request, res: Response, next: Function) {
     const bearer = req.headers["authorization"];
 
@@ -61,3 +62,6 @@ class ApiAuth {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 }
+
+
+export default ApiAuth.apiAuth; 
