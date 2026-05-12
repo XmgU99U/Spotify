@@ -3,6 +3,7 @@ import { hash, compare } from "bcrypt";
 import { Request, Response } from "express";
 import { generateAccessToken, generateRefreshToken } from "./token_generators";
 import { isEmail, isPassword, isUserName, isCode } from "./validators";
+import { JsonWebTokenError, JwtPayload, NotBeforeError, TokenExpiredError, verify } from "jsonwebtoken";
 
 const register = async (req: Request, res: Response) => {
   const { userName, userEmail, userPassword } = req.body;
@@ -139,10 +140,38 @@ const checkCode = async (req: Request, res: Response) => {
 
   await userModel.findByIdAndUpdate(userId, { isVerified: true }).exec();
 
-  const accessTokens = generateAccessToken({ userId, isVerified : true});
+  const accessTokens = generateAccessToken({ userId, isVerified: true });
   const refreshTokens = generateRefreshToken({ userId, isVerified: true });
 
-  res.status(200).json({accessTokens , refreshTokens});
+  res.status(200).json({ accessTokens, refreshTokens });
+};
+
+const refreshAccessToken = (req: Request, res: Response) => {
+  const refreshToken = req.body.refreshToken;
+  if (!refreshToken || typeof refreshToken !== "string") {
+    return res.sendStatus(400);
+  }
+  try {
+    const payload = verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET as string,
+    ) as JwtPayload;
+    const accessToken = generateAccessToken({
+      userId: payload.userId,
+      isVerified: payload.isVerified,
+    });
+    res.status(200).json(accessToken) ;
+  } catch (e) {
+    if (e instanceof TokenExpiredError) {
+      return res.status(403).json({ error: e.message });
+    }
+    if (e instanceof JsonWebTokenError) {
+      return res.status(401).json({ error: e.message });
+    }
+    if (e instanceof NotBeforeError) {
+      return res.status(401).json({ error: e.message });
+    }
+  }
 };
 
 export { register, login, checkCode };
