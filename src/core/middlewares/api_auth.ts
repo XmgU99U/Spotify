@@ -23,7 +23,7 @@ class ApiAuth {
         accessToken,
         process.env.ACCESS_TOKEN_SECRET as string,
       );
-      res.locals.userID = (payload as JwtPayload).userId;
+      res.locals.userId = (payload as JwtPayload).userId;
       res.locals.isVerified = (payload as JwtPayload).isVerified;
       next();
     } catch (e) {

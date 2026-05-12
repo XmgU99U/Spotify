@@ -117,6 +117,7 @@ const login = async (req: Request, res: Response) => {
 
 const checkCode = async (req: Request, res: Response) => {
   const userId = res.locals.userId;
+  console.log(userId);
   const isVerified = res.locals.isVerified;
   const code = req.body.code;
   if (!isCode(code)) {
@@ -137,7 +138,11 @@ const checkCode = async (req: Request, res: Response) => {
   }
 
   await userModel.findByIdAndUpdate(userId, { isVerified: true }).exec();
-  res.sendStatus(204);
+
+  const accessTokens = generateAccessToken({ userId, isVerified : true});
+  const refreshTokens = generateRefreshToken({ userId, isVerified: true });
+
+  res.status(200).json({accessTokens , refreshTokens});
 };
 
 export { register, login, checkCode };

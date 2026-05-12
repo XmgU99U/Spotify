@@ -109,6 +109,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.login = login;
 const checkCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = res.locals.userId;
+    console.log(userId);
     const isVerified = res.locals.isVerified;
     const code = req.body.code;
     if (!(0, validators_1.isCode)(code)) {
@@ -125,5 +126,8 @@ const checkCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(400).json({ error: "Wrong code" });
     }
     yield userModel_1.default.findByIdAndUpdate(userId, { isVerified: true }).exec();
+    const accessTokens = (0, token_generators_1.generateAccessToken)({ userId, isVerified: true });
+    const refreshTokens = (0, token_generators_1.generateRefreshToken)({ userId, isVerified: true });
+    res.status(200).json({ accessTokens, refreshTokens });
 });
 exports.checkCode = checkCode;

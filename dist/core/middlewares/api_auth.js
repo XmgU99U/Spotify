@@ -10,7 +10,7 @@ class ApiAuth {
         const accessToken = bearer.split(" ")[1];
         try {
             const payload = (0, jsonwebtoken_1.verify)(accessToken, process.env.ACCESS_TOKEN_SECRET);
-            res.locals.userID = payload.userId;
+            res.locals.userId = payload.userId;
             res.locals.isVerified = payload.isVerified;
             next();
         }
