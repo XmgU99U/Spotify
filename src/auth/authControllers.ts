@@ -109,3 +109,5 @@ const login = async (req: Request, res: Response) => {
   //! send success responses
   res.status(200).json({ accessTokens, refreshTokens });
 };
+
+export { register, login };
