@@ -51,7 +51,7 @@ const register = async (req: Request, res: Response) => {
   const result = await userModel.insertOne({
     userName,
     userEmail,
-    userPassword,
+    userPassword : hashedPass,
     code,
   });
   const userId = result.id;

@@ -55,7 +55,7 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield userModel_1.default.insertOne({
         userName,
         userEmail,
-        userPassword,
+        userPassword: hashedPass,
         code,
     });
     const userId = result.id;
