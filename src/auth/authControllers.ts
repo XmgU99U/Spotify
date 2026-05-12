@@ -51,7 +51,7 @@ const register = async (req: Request, res: Response) => {
   const result = await userModel.insertOne({
     userName,
     userEmail,
-    userPassword : hashedPass,
+    userPassword: hashedPass,
     code,
   });
   const userId = result.id;
@@ -59,7 +59,7 @@ const register = async (req: Request, res: Response) => {
 
   //! generate tokens
   const accessTokens = generateAccessToken({ userId, isVerified: false });
-  const refreshTokens = generateRefreshToken({ userId , isVerified  : false });
+  const refreshTokens = generateRefreshToken({ userId, isVerified: false });
 
   //! send success response
   res.status(201).json({ accessTokens, refreshTokens });
@@ -82,10 +82,9 @@ const login = async (req: Request, res: Response) => {
   }
 
   //! get user
-  const findedUserEmail = await userModel.findOne(
-    { userEmail  },
-    { userPassword: 1  , isVerified : 1},
-  );
+  const findedUserEmail = await userModel
+    .findOne({ userEmail }, { userPassword: 1, isVerified: 1 })
+    .exec();
 
   //! if no user found
   if (!findedUserEmail) {
@@ -93,9 +92,9 @@ const login = async (req: Request, res: Response) => {
   }
 
   //! if user verified
-  const isVerified = findedUserEmail.isVerified ; 
-  if(!isVerified) {
-    return res.status(403).json({error : 'Not verified'})
+  const isVerified = findedUserEmail.isVerified;
+  if (!isVerified) {
+    return res.status(403).json({ error: "Not verified" });
   }
 
   const userId = findedUserEmail.id;
@@ -109,11 +108,35 @@ const login = async (req: Request, res: Response) => {
   }
 
   //! generate tokens
-  const accessTokens = generateAccessToken({ userId  , isVerified});
-  const refreshTokens = generateRefreshToken({ userId , isVerified});
+  const accessTokens = generateAccessToken({ userId, isVerified });
+  const refreshTokens = generateRefreshToken({ userId, isVerified });
 
   //! send success responses
   res.status(200).json({ accessTokens, refreshTokens });
 };
 
-export { register, login };
+const checkCode = async (req: Request, res: Response) => {
+  const userId = res.locals.userId;
+  const isVerified = res.locals.isVerified;
+  const code = req.body.code;
+  if (!isCode(code)) {
+    return res.sendStatus(400);
+  }
+
+  if (isVerified) {
+    return res.sendStatus(403);
+  }
+  const user = await userModel.findById(userId, { code: 1 }).exec();
+
+  if (!user) {
+    return res.sendStatus(404);
+  }
+
+  if (!(user.code === code)) {
+    return res.status(400).json({ error: "Wrong code" });
+  }
+
+  await userModel.findByIdAndUpdate(userId, { isVerified: true }).exec();
+};
+
+export { register, login , checkCode};
