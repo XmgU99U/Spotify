@@ -7,7 +7,9 @@ const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const mongoose_1 = require("mongoose");
-(0, mongoose_1.connect)("mongodb://localhost:27017/Spotify").then((_data) => console.log("Connected to DB"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+(0, mongoose_1.connect)(process.env.MONGO_DB_URL).then((_data) => console.log("Connected to DB"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
 //!  MY MIDDLE WARES
