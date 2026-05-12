@@ -40,14 +40,14 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         .findOne({ userEmail })
         .exec();
     if (foundedUserWithSameEmail) {
-        return res.status(400).json({ error: "User already exist" });
+        return res.status(403).json({ error: "User already exist" });
     }
     //! find user who has same username
     const foundedUserWithSameUserName = yield userModel_1.default
         .findOne({ userName })
         .exec();
     if (foundedUserWithSameUserName) {
-        return res.status(400).json({ error: "This username already exist" });
+        return res.status(403).json({ error: "This username already exist" });
     }
     //! hash the password before storing
     const hashedPass = yield (0, bcrypt_1.hash)(userPassword, 10);
