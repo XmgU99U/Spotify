@@ -143,7 +143,7 @@ const refreshAccessToken = (req, res) => {
             userId: payload.userId,
             isVerified: payload.isVerified,
         });
-        res.status(200).json(accessToken);
+        res.status(200).json({ accessToken });
     }
     catch (e) {
         if (e instanceof jsonwebtoken_1.TokenExpiredError) {
