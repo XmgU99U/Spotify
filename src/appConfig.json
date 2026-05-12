@@ -1,0 +1,4 @@
+{
+  "AppDatabase" : "MongoDB"  , 
+  "AppCache" : "Redis" 
+}
