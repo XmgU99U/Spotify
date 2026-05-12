@@ -126,7 +126,7 @@ const checkCode = async (req: Request, res: Response) => {
   if (isVerified) {
     return res.sendStatus(403);
   }
-  const user = await userModel.findById(userId , {code: 1 }).exec();
+  const user = await userModel.findById(userId, { code: 1 }).exec();
 
   if (!user) {
     return res.sendStatus(404);
@@ -137,7 +137,7 @@ const checkCode = async (req: Request, res: Response) => {
   }
 
   await userModel.findByIdAndUpdate(userId, { isVerified: true }).exec();
-  res.sendStatus(204) ; 
+  res.sendStatus(204);
 };
 
-export { register, login , checkCode};
+export { register, login, checkCode };
