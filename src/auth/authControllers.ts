@@ -160,7 +160,7 @@ const refreshAccessToken = (req: Request, res: Response) => {
       userId: payload.userId,
       isVerified: payload.isVerified,
     });
-    res.status(200).json(accessToken) ;
+    res.status(200).json({accessToken}) ;
   } catch (e) {
     if (e instanceof TokenExpiredError) {
       return res.status(403).json({ error: e.message });
