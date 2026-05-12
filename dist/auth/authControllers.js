@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.register = void 0;
+exports.checkCode = exports.login = exports.register = void 0;
 const userModel_1 = __importDefault(require("./userModel"));
 const bcrypt_1 = require("bcrypt");
 const token_generators_1 = require("./token_generators");
@@ -61,8 +61,8 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = result.id;
     console.log(userId);
     //! generate tokens
-    const accessTokens = (0, token_generators_1.generateAccessToken)({ userId });
-    const refreshTokens = (0, token_generators_1.generateRefreshToken)({ userId });
+    const accessTokens = (0, token_generators_1.generateAccessToken)({ userId, isVerified: false });
+    const refreshTokens = (0, token_generators_1.generateRefreshToken)({ userId, isVerified: false });
     //! send success response
     res.status(201).json({ accessTokens, refreshTokens });
 });
@@ -81,10 +81,17 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(400).json({ error: "Invalid password" });
     }
     //! get user
-    const findedUserEmail = yield userModel_1.default.findOne({ $and: [{ isVerified: true }, { userEmail }] }, { userPassword: 1 });
+    const findedUserEmail = yield userModel_1.default
+        .findOne({ userEmail }, { userPassword: 1, isVerified: 1 })
+        .exec();
     //! if no user found
     if (!findedUserEmail) {
         return res.status(400).json({ error: "Wrong user information" });
+    }
+    //! if user verified
+    const isVerified = findedUserEmail.isVerified;
+    if (!isVerified) {
+        return res.status(403).json({ error: "Not verified" });
     }
     const userId = findedUserEmail.id;
     //! compare passwords
@@ -94,9 +101,29 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(400).json({ error: "Wrong user information" });
     }
     //! generate tokens
-    const accessTokens = (0, token_generators_1.generateAccessToken)({ userId });
-    const refreshTokens = (0, token_generators_1.generateRefreshToken)({ userId });
+    const accessTokens = (0, token_generators_1.generateAccessToken)({ userId, isVerified });
+    const refreshTokens = (0, token_generators_1.generateRefreshToken)({ userId, isVerified });
     //! send success responses
     res.status(200).json({ accessTokens, refreshTokens });
 });
 exports.login = login;
+const checkCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = res.locals.userId;
+    const isVerified = res.locals.isVerified;
+    const code = req.body.code;
+    if (!(0, validators_1.isCode)(code)) {
+        return res.sendStatus(400);
+    }
+    if (isVerified) {
+        return res.sendStatus(403);
+    }
+    const user = yield userModel_1.default.findById(userId, { code: 1 }).exec();
+    if (!user) {
+        return res.sendStatus(404);
+    }
+    if (!(user.code === code)) {
+        return res.status(400).json({ error: "Wrong code" });
+    }
+    yield userModel_1.default.findByIdAndUpdate(userId, { isVerified: true }).exec();
+});
+exports.checkCode = checkCode;
