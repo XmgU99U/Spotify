@@ -58,8 +58,8 @@ const register = async (req: Request, res: Response) => {
   console.log(userId);
 
   //! generate tokens
-  const accessTokens = generateAccessToken({ userId });
-  const refreshTokens = generateRefreshToken({ userId });
+  const accessTokens = generateAccessToken({ userId, isVerified: false });
+  const refreshTokens = generateRefreshToken({ userId , isVerified  : false });
 
   //! send success response
   res.status(201).json({ accessTokens, refreshTokens });
@@ -83,13 +83,19 @@ const login = async (req: Request, res: Response) => {
 
   //! get user
   const findedUserEmail = await userModel.findOne(
-    { $and: [{ isVerified: true }, { userEmail }] },
-    { userPassword: 1 },
+    { userEmail  },
+    { userPassword: 1  , isVerified : 1},
   );
 
   //! if no user found
   if (!findedUserEmail) {
     return res.status(400).json({ error: "Wrong user information" });
+  }
+
+  //! if user verified
+  const isVerified = findedUserEmail.isVerified ; 
+  if(!isVerified) {
+    return res.status(403).json({error : 'Not verified'})
   }
 
   const userId = findedUserEmail.id;
@@ -103,8 +109,8 @@ const login = async (req: Request, res: Response) => {
   }
 
   //! generate tokens
-  const accessTokens = generateAccessToken({ userId });
-  const refreshTokens = generateRefreshToken({ userId });
+  const accessTokens = generateAccessToken({ userId  , isVerified});
+  const refreshTokens = generateRefreshToken({ userId , isVerified});
 
   //! send success responses
   res.status(200).json({ accessTokens, refreshTokens });
