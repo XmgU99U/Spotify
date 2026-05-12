@@ -1,0 +1,15 @@
+import { sign } from "jsonwebtoken";
+
+const generateAccessToken = (data: Object): string => {
+  return sign(data, process.env.ACCESS_TOKEN_SECRET as string, {
+    expiresIn: "20m",
+  });
+};
+
+const generateRefreshToken = (data: Object): string => {
+  return sign(data, process.env.REFRESH_TOKEN_SECRET as string, {
+    expiresIn: "30d",
+  });
+};
+
+export {generateAccessToken , generateRefreshToken}
