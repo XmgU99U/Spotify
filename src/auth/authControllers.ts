@@ -174,4 +174,4 @@ const refreshAccessToken = (req: Request, res: Response) => {
   }
 };
 
-export { register, login, checkCode };
+export { register, login, checkCode , refreshAccessToken};

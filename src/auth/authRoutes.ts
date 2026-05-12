@@ -9,5 +9,7 @@ router.post('/register' , register)
 
 router.post('/checkCode' , apiAuth.bearerToken , checkCode) ;
 
+router.post('/refreshToken' , apiAuth.basicAuth , )
+
 
 export default router;
