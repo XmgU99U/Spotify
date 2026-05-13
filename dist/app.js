@@ -9,8 +9,10 @@ const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const mongoose_1 = require("mongoose");
 const dotenv_1 = __importDefault(require("dotenv"));
 const authRoutes_1 = __importDefault(require("./auth/authRoutes"));
+const redisClient_1 = __importDefault(require("./core/redisClient"));
 dotenv_1.default.config();
 (0, mongoose_1.connect)(process.env.MONGO_DB_URL).then((_data) => console.log("Connected to DB"));
+redisClient_1.default.connect();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
 //!  MY MIDDLE WARES
